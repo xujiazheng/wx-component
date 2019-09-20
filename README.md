@@ -14,7 +14,7 @@
 因为wx:if是dom的移除，每次切换视图都会重新渲染组件，而不是重新显示组件，因此组件内部data是无法保存的
 
 ```html
-<!---->
+<!--一段视图-->
 <view wx:if="{{!showLogin}} class="container">主页内容展示</view>
 <Login wx:else></Login>
 ```
@@ -130,3 +130,47 @@ Page({
 
 使用wx-component后将变得很简单，并且组件的功能保留内聚的原则
 
+## 用法
+
+```javascript
+
+import Base from './wx-component.js';
+
+Component(Base({
+    name: 'vo',
+    $$data: {
+        userName: '',
+        password: '',
+    },
+    $parentMethods: {
+        reset() {
+            this.setData({
+                userName: '',
+                password: '',
+            });
+        }
+    },
+    methods: {
+        // ...
+    }
+}))
+
+```
+
+1. 将组件的options对象传递给Base方法
+
+2. 声明name属性
+
+3. 将组件内需要缓存的数据放在$$data中，如图，这样一来，组件内setData会自动同步到页面的实例data中，页面中可以用this.data.$vo获取到数据
+
+4. 将组件需要暴露给页面实例的方法放在$parentMethods，页面中可以用this.$vo.reset去执行
+
+## 其他问题
+
+1. 为什么需要$parentMethods要用$开头？
+
+因为与常规属性做区分
+
+2. 为什么$$data需要用$$开头而不是$？
+
+考虑到$开头的$parentMethods为向外暴露，对组件与页面都没有副作用，但是$$data类似于单向数据流，从组件->页面，会影响页面的data，进而可以影响页面view，因此用$$开头做表示
